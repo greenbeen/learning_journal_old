@@ -1,10 +1,15 @@
+import datetime
 from sqlalchemy import (
     Column,
     Index,
     Integer,
     Text,
     DateTime,
+    Unicode,
+    UnicodeText
     )
+
+import sqlalchemy as sa
 
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -32,16 +37,19 @@ class Entry(Base):
     __tablename__ = "entries"
     id = Column(Integer, primary_key=True)
     title = Column(Unicode(255), nullable=False, unique=True) 
-    body = Column(Unicode) 
-    created = Column(DateTime, default=datetime.datetime.now) 
-    edited = Column(DateTime, default=datetime.datetime.now) 
+    body = Column(UnicodeText, default=u'') 
+    created = Column(DateTime, default=datetime.datetime.utcnow) 
+    edited = Column(DateTime, default=datetime.datetime.utcnow) 
 
     # Need to work on how to reference session appropriately
-    def all(self):
-        return session.query(self).order_by(self.created)
+    @classmethod
+    def all(cls):
+        return DBSession.query(cls).order_by(sa.desc(cls.created)).all()
 
+        # return session.query(self).order_by(self.created)
+    @classmethod
     def by_id(self, id):
         #return session.query(self).filter(self.id = id) #this option throws an error when initializing...
-        return session.query(self).get(id)
+        return DBsession.query(cls).get(id)
 
 
